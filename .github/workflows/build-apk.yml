@@ -20,10 +20,13 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
+    - name: Install Gradle
+      run: |
+        apt-get update
+        apt-get install -y gradle
+
     - name: Build APK with Gradle
-      uses: gradle/gradle-build-action@v3
-      with:
-        arguments: build -x test
+      run: gradle build -x test
         cache-disabled: true
 
     - name: Upload APK
