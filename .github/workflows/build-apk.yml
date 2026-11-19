@@ -21,7 +21,7 @@ jobs:
         distribution: 'temurin'
 
     - name: Build APK with Gradle
-      uses: gradle/gradle-build-action@v4
+      uses: gradle/gradle-build-action@v3
       with:
         arguments: build -x test
         cache-disabled: true
