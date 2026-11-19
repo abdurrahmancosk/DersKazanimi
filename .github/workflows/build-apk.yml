@@ -20,14 +20,11 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
-    - name: Build with Gradle
-      run: |
-        cd $GITHUB_WORKSPACE
-        wget -q https://services.gradle.org/distributions/gradle-8.7-bin.zip -O gradle.zip
-        unzip -q gradle.zip
-        chmod +x gradle-8.7/bin/gradle
-        gradle-8.7/bin/gradle build -x test
-      working-directory: ${{ github.workspace }}
+    - name: Build APK with Gradle
+      uses: gradle/gradle-build-action@v4
+      with:
+        arguments: build -x test
+        cache-disabled: true
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
