@@ -20,14 +20,13 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
-    - name: Install Gradle
-      run: |
-        apt-get update
-        apt-get install -y gradle
+    - name: Set up Android SDK
+      uses: android-actions/setup-android@v3
 
     - name: Build APK with Gradle
-      run: gradle build -x test
-        cache-disabled: true
+      uses: gradle/gradle-build-action@v2
+      with:
+        arguments: build -x test
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
