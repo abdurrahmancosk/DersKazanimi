@@ -22,9 +22,12 @@ jobs:
 
     - name: Build with Gradle
       run: |
-        wget https://services.gradle.org/distributions/gradle-8.7-bin.zip
-        unzip gradle-8.7-bin.zip
-        ./gradle-8.7/bin/gradle build -x test
+        cd $GITHUB_WORKSPACE
+        wget -q https://services.gradle.org/distributions/gradle-8.7-bin.zip -O gradle.zip
+        unzip -q gradle.zip
+        chmod +x gradle-8.7/bin/gradle
+        gradle-8.7/bin/gradle build -x test
+      working-directory: ${{ github.workspace }}
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
