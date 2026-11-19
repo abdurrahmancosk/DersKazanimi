@@ -3,9 +3,7 @@
     <cloud-backup>
         <!-- TODO: Use rules to control what gets backed up to the cloud -->
     </cloud-backup>
-    <!--
     <device-transfer>
         <!-- TODO: Use rules to control what gets transferred to new devices -->
     </device-transfer>
-    -->
 </data-extraction-rules>
