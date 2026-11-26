@@ -1,0 +1,102 @@
+package com.example.derskazanimi.utils
+
+// 2026-2027 Eğitim Öğretim Yılı Matematik Dersi Hazırlık Sınıfı Yıllık Planı
+// HZ-A, HZ-B, HZ-C sınıflarının tamamı için ortak kullanılır.
+
+data class WeekPlanSpec(
+    val weekNumber: Int,
+    val startDate: String, // yyyy-MM-dd
+    val endDate: String,   // yyyy-MM-dd
+    val unite: String,
+    val kazanim: String
+)
+
+object HazirlikYearlyPlan {
+
+    val classNames = listOf("HZ-A", "HZ-B", "HZ-C")
+
+    fun getWeeklySpecs(): List<WeekPlanSpec> = listOf(
+        WeekPlanSpec(1, "2026-09-14", "2026-09-20", "NİCELİKLER VE DEĞİŞİMLER",
+            "H.1.1. Doğrusal ilişkiler içeren problemlerin çözümlerinde matematiksel araç ve teknolojilerden yararlanabilme"),
+        WeekPlanSpec(2, "2026-09-21", "2026-09-27", "NİCELİKLER VE DEĞİŞİMLER",
+            "H.1.1. Doğrusal ilişkiler içeren problemlerin çözümlerinde matematiksel araç ve teknolojilerden yararlanabilme"),
+        WeekPlanSpec(3, "2026-09-28", "2026-10-04", "NİCELİKLER VE DEĞİŞİMLER",
+            "H.1.1. Doğrusal ilişkiler içeren problemlerin çözümlerinde matematiksel araç ve teknolojilerden yararlanabilme"),
+        WeekPlanSpec(4, "2026-10-05", "2026-10-11", "NİCELİKLER VE DEĞİŞİMLER",
+            "H.1.1. Doğrusal ilişkiler içeren problemlerin çözümlerinde matematiksel araç ve teknolojilerden yararlanabilme"),
+        WeekPlanSpec(5, "2026-10-12", "2026-10-18", "NİCELİKLER VE DEĞİŞİMLER",
+            "H.1.1. Doğrusal ilişkiler içeren problemlerin çözümlerinde matematiksel araç ve teknolojilerden yararlanabilme"),
+        WeekPlanSpec(6, "2026-10-19", "2026-10-25", "NİCELİKLER VE DEĞİŞİMLER",
+            "H.1.1. Doğrusal ilişkiler içeren problemlerin çözümlerinde matematiksel araç ve teknolojilerden yararlanabilme"),
+        WeekPlanSpec(7, "2026-10-26", "2026-11-01", "MANTIKSAL ÇIKARIM",
+            "H.1.1. Doğrusal ilişkiler içeren problemlerin çözümlerinde matematiksel araç ve teknolojilerden yararlanabilme\n• H.2.1. Mantıksal çıkarım gerektiren problemleri çözebilme"),
+        WeekPlanSpec(8, "2026-11-02", "2026-11-08", "MANTIKSAL ÇIKARIM",
+            "H.2.1. Mantıksal çıkarım gerektiren problemleri çözebilme"),
+        WeekPlanSpec(9, "2026-11-09", "2026-11-15", "MANTIKSAL ÇIKARIM",
+            "H.2.1. Mantıksal çıkarım gerektiren problemleri çözebilme"),
+        WeekPlanSpec(10, "2026-11-16", "2026-11-22", "ARA TATİL",
+            "ARA TATİL - Bu hafta ders işlenmiyor"),
+        WeekPlanSpec(11, "2026-11-23", "2026-11-29", "MANTIKSAL ÇIKARIM",
+            "H.2.1. Mantıksal çıkarım gerektiren problemleri çözebilme"),
+        WeekPlanSpec(12, "2026-11-30", "2026-12-06", "MANTIKSAL ÇIKARIM",
+            "H.2.1. Mantıksal çıkarım gerektiren problemleri çözebilme"),
+        WeekPlanSpec(13, "2026-12-07", "2026-12-13", "MANTIKSAL ÇIKARIM",
+            "MAT.H.2.1. Mantıksal çıkarım gerektiren problemleri çözebilme"),
+        WeekPlanSpec(14, "2026-12-14", "2026-12-20", "MANTIKSAL ÇIKARIM",
+            "H.2.1. Mantıksal çıkarım gerektiren problemleri çözebilme"),
+        WeekPlanSpec(15, "2026-12-21", "2026-12-27", "MANTIKSAL ÇIKARIM / Sonlu Sayı Örüntüleri",
+            "H.2.1. Mantıksal çıkarım gerektiren problemleri çözebilme\n• H.3.1. Sonlu sayı örüntülerine yönelik tümevarımsal akıl yürütebilme"),
+        WeekPlanSpec(16, "2026-12-28", "2027-01-03", "ALGORİTMA VE BİLİŞİM / Sonlu Sayı Örüntüleri",
+            "H.3.1. Sonlu sayı örüntülerine yönelik tümevarımsal akıl yürütebilme"),
+        WeekPlanSpec(17, "2027-01-04", "2027-01-10", "ALGORİTMA VE BİLİŞİM / Şifreli Metinler",
+            "H.3.2. Şifreli metinleri çözebilmek için tümevarımsal akıl yürütebilme"),
+        WeekPlanSpec(18, "2027-01-11", "2027-01-17", "ALGORİTMA VE BİLİŞİM / Şifreli Metinler",
+            "H.3.2. Şifreli metinleri çözebilmek için tümevarımsal akıl yürütebilme"),
+        WeekPlanSpec(19, "2027-01-18", "2027-01-24", "OKUL TEMELLİ PLANLAMA",
+            "OKUL TEMELLİ PLANLAMA"),
+        WeekPlanSpec(1000, "2027-01-25", "2027-01-31", "YARIYIL TATİLİ",
+            "YARIYIL TATİLİ - Bu hafta ders işlenmiyor"),
+        WeekPlanSpec(1001, "2027-02-01", "2027-02-07", "YARIYIL TATİLİ",
+            "YARIYIL TATİLİ - Bu hafta ders işlenmiyor"),
+        WeekPlanSpec(20, "2027-02-08", "2027-02-14", "ALGORİTMA VE BİLİŞİM / Şifreli Metinler",
+            "H.3.2. Şifreli metinleri çözebilmek için tümevarımsal akıl yürütebilme"),
+        WeekPlanSpec(21, "2027-02-15", "2027-02-21", "ALGORİTMA VE BİLİŞİM / Şifreli Metinler",
+            "MAT.H.3.2. Şifreli metinleri çözebilmek için tümevarımsal akıl yürütebilme"),
+        WeekPlanSpec(22, "2027-02-22", "2027-02-28", "ALGORİTMA VE BİLİŞİM / Şifreleme Yöntemleri",
+            "H.3.3. Şifreli metinler oluşturabilmek için analojik akıl yürütebilme"),
+        WeekPlanSpec(23, "2027-03-01", "2027-03-07", "ALGORİTMA VE BİLİŞİM / Şifreleme Yöntemleri",
+            "H.3.3. Şifreli metinler oluşturabilmek için analojik akıl yürütebilme"),
+        WeekPlanSpec(24, "2027-03-08", "2027-03-14", "ARA TATİL",
+            "ARA TATİL - Bu hafta ders işlenmiyor"),
+        WeekPlanSpec(25, "2027-03-15", "2027-03-21", "ALGORİTMA VE BİLİŞİM / Şifreleme Yöntemleri",
+            "H.3.3. Şifreli metinler oluşturabilmek için analojik akıl yürütebilme"),
+        WeekPlanSpec(26, "2027-03-22", "2027-03-28", "GEOMETRİK ŞEKİLLER / İnşa Çalışmaları",
+            "H.4.1. Farklı geometrik kavram ve şekillerin inşa çalışmalarında matematiksel araç ve teknolojilerden yararlanabilme"),
+        WeekPlanSpec(27, "2027-03-29", "2027-04-04", "GEOMETRİK ŞEKİLLER / İnşa Çalışmaları",
+            "H.4.1. Farklı geometrik kavram ve şekillerin inşa çalışmalarında matematiksel araç ve teknolojilerden yararlanabilme"),
+        WeekPlanSpec(28, "2027-04-05", "2027-04-11", "GEOMETRİK ŞEKİLLER / İnşa Çalışmaları",
+            "H.4.1. Farklı geometrik kavram ve şekillerin inşa çalışmalarında matematiksel araç ve teknolojilerden yararlanabilme"),
+        WeekPlanSpec(29, "2027-04-12", "2027-04-18", "GEOMETRİK ŞEKİLLER / İnşa Çalışmaları",
+            "H.4.1. Farklı geometrik kavram ve şekillerin inşa çalışmalarında matematiksel araç ve teknolojilerden yararlanabilme"),
+        WeekPlanSpec(30, "2027-04-19", "2027-04-25", "GEOMETRİK ŞEKİLLER / Özel Dörtgenlerin Özellikleri",
+            "H.4.2. Matematiksel araç ve teknolojilerden yararlanılarak inşa edilen bazı özel dörtgenlerin (yamuk, paralelkenar, dikdörtgen, eşkenar dörtgen, kare) özellikleri ile ilgili çıkarım yapabilme"),
+        WeekPlanSpec(31, "2027-04-26", "2027-05-02", "GEOMETRİK ŞEKİLLER / Özel Dörtgenlerin Özellikleri",
+            "H.4.2. Matematiksel araç ve teknolojilerden yararlanılarak inşa edilen bazı özel dörtgenlerin (yamuk, paralelkenar, dikdörtgen, eşkenar dörtgen, kare) özellikleri ile ilgili çıkarım yapabilme"),
+        WeekPlanSpec(32, "2027-05-03", "2027-05-09", "GEOMETRİK ŞEKİLLER / Fraktallar",
+            "H.4.3. Fraktalları çözümleyebilme"),
+        WeekPlanSpec(33, "2027-05-10", "2027-05-16", "GEOMETRİK ŞEKİLLER / Fraktallar Süsleme",
+            "H.4.3. Fraktalları çözümleyebilme\n• H.4.4. Geometrik şekiller kullanılarak oluşturulan süslemeleri çözümleyebilme"),
+        WeekPlanSpec(34, "2027-05-17", "2027-05-23", "GEOMETRİK ŞEKİLLER / Süsleme Kaplamalar",
+            "H.4.4. Geometrik şekiller kullanılarak oluşturulan süslemeleri çözümleyebilme\n• H.4.5. Geometrik şekillerden kaplamalar sentezleyebilme"),
+        WeekPlanSpec(35, "2027-05-24", "2027-05-30", "GEOMETRİK ŞEKİLLER / İSTATİSTİKSEL ARAŞTIRMA SÜRECİ / Kaplamalar",
+            "H.4.5. Geometrik şekillerden kaplamalar sentezleyebilme"),
+        WeekPlanSpec(36, "2027-05-31", "2027-06-06", "İSTATİSTİKSEL ARAŞTIRMA SÜRECİ / Kaplamalar",
+            "H.4.5. Geometrik şekillerden kaplamalar sentezleyebilme\n• H.5.1. Başkaları tarafından oluşturulan istatistiksel sonuç veya yorumları tartışabilme"),
+        WeekPlanSpec(37, "2027-06-07", "2027-06-13", "İSTATİSTİKSEL ARAŞTIRMA SÜRECİ",
+            "H.5.1. Başkaları tarafından oluşturulan istatistiksel sonuç veya yorumları tartışabilme"),
+        WeekPlanSpec(38, "2027-06-14", "2027-06-20", "İSTATİSTİKSEL ARAŞTIRMA SÜRECİ / OKUL TEMELLİ PLANLAMA",
+            "H.5.1. Başkaları tarafından oluşturulan istatistiksel sonuç veya yorumları tartışabilme\n• OKUL TEMELLİ PLANLAMA"),
+        WeekPlanSpec(1002, "2027-06-21", "2027-06-27", "SOSYAL ETKİNLİK",
+            "SOSYAL ETKİNLİK")
+    )
+}

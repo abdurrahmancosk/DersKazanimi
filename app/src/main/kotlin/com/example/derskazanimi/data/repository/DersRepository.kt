@@ -1,6 +1,7 @@
 package com.example.derskazanimi.data.repository
 
 import com.example.derskazanimi.data.AppDatabase
+import com.example.derskazanimi.data.entity.DutyDate
 import com.example.derskazanimi.data.entity.LearningOutcome
 import com.example.derskazanimi.data.entity.ScheduleEntry
 import com.example.derskazanimi.data.entity.TimeSlot
@@ -102,4 +103,17 @@ class DersRepository(private val database: AppDatabase) {
 
     suspend fun deleteAllLearningOutcomes() =
         database.learningOutcomeDao().deleteAllLearningOutcomes()
+
+    // DutyDate operations
+    suspend fun insertDutyDate(dutyDate: DutyDate): Long =
+        database.dutyDateDao().insert(dutyDate)
+
+    fun getAllDutyDates(): Flow<List<DutyDate>> =
+        database.dutyDateDao().getAllDutyDates()
+
+    fun getDutyDateForDate(date: String): Flow<DutyDate?> =
+        database.dutyDateDao().getDutyDateForDate(date)
+
+    suspend fun deleteAllDutyDates() =
+        database.dutyDateDao().deleteAllDutyDates()
 }

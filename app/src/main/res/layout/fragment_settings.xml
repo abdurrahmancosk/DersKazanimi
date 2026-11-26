@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="match_parent">
+
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="16dp">
 
@@ -149,6 +153,106 @@
 
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Uygulama Güncellemesi"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="12dp" />
+
+            <TextView
+                android:id="@+id/currentVersionText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Mevcut sürüm: -"
+                android:textSize="12sp"
+                android:textColor="@android:color/darker_gray"
+                android:layout_marginBottom="12dp" />
+
+            <Button
+                android:id="@+id/checkUpdateButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Güncellemeleri Kontrol Et"
+                android:layout_marginBottom="8dp" />
+
+            <Button
+                android:id="@+id/downloadUpdateButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Güncellemeyi İndir ve Kur"
+                android:enabled="false"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:id="@+id/updateStatusText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Kontrol etmek için yukarıdaki düğmeye basın"
+                android:textSize="12sp"
+                android:textColor="@android:color/darker_gray" />
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Pansiyon Nöbet Listesi (Resim)"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="12dp" />
+
+            <Button
+                android:id="@+id/selectDutyImageButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Nöbet Listesi Resmi Seç"
+                android:layout_marginBottom="8dp" />
+
+            <Button
+                android:id="@+id/viewDutyImageButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Yüklenen Nöbet Listesini Görüntüle"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:id="@+id/dutyImageStatusText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Henüz dosya yüklenmedi"
+                android:textSize="12sp"
+                android:textColor="@android:color/darker_gray" />
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <LinearLayout
@@ -178,3 +282,4 @@
     </com.google.android.material.card.MaterialCardView>
 
 </LinearLayout>
+</ScrollView>

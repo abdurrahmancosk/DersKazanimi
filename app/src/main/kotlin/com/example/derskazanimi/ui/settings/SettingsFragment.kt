@@ -17,7 +17,9 @@ import com.example.derskazanimi.data.repository.DersRepository
 import com.example.derskazanimi.utils.AlarmScheduler
 import com.example.derskazanimi.utils.ExcelImporter
 import com.example.derskazanimi.utils.ImportResult
+import com.example.derskazanimi.utils.ReleaseInfo
 import com.example.derskazanimi.utils.ScheduleInitializer
+import com.example.derskazanimi.utils.UpdateChecker
 import kotlinx.coroutines.launch
 import java.io.File
 
@@ -30,11 +32,22 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
     private lateinit var selectScheduleFileButton: Button
     private lateinit var viewScheduleFileButton: Button
     private lateinit var scheduleFileStatusText: TextView
+    private lateinit var currentVersionText: TextView
+    private lateinit var checkUpdateButton: Button
+    private lateinit var downloadUpdateButton: Button
+    private lateinit var updateStatusText: TextView
+    private lateinit var selectDutyImageButton: Button
+    private lateinit var viewDutyImageButton: Button
+    private lateinit var dutyImageStatusText: TextView
+    private var pendingRelease: ReleaseInfo? = null
     private val PICK_EXCEL_FILE = 1001
     private val PICK_SCHEDULE_FILE = 1002
+    private val PICK_DUTY_IMAGE = 1003
     private val PREFS_NAME = "ders_kazanimi_prefs"
     private val KEY_SCHEDULE_FILE_NAME = "schedule_ref_file_name"
     private val KEY_SCHEDULE_FILE_MIME = "schedule_ref_file_mime"
+    private val KEY_DUTY_FILE_NAME = "duty_ref_file_name"
+    private val KEY_DUTY_FILE_MIME = "duty_ref_file_mime"
 
     override fun onViewCreated(view: android.view.View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -48,6 +61,13 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
         selectScheduleFileButton = view.findViewById(R.id.selectScheduleFileButton)
         viewScheduleFileButton = view.findViewById(R.id.viewScheduleFileButton)
         scheduleFileStatusText = view.findViewById(R.id.scheduleFileStatusText)
+        currentVersionText = view.findViewById(R.id.currentVersionText)
+        checkUpdateButton = view.findViewById(R.id.checkUpdateButton)
+        downloadUpdateButton = view.findViewById(R.id.downloadUpdateButton)
+        updateStatusText = view.findViewById(R.id.updateStatusText)
+        selectDutyImageButton = view.findViewById(R.id.selectDutyImageButton)
+        viewDutyImageButton = view.findViewById(R.id.viewDutyImageButton)
+        dutyImageStatusText = view.findViewById(R.id.dutyImageStatusText)
 
         // Initialize TimeSlots and Schedule
         initializeScheduleData()
@@ -65,6 +85,24 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
             openSavedScheduleFile()
         }
 
+        checkUpdateButton.setOnClickListener {
+            checkForUpdate()
+        }
+
+        downloadUpdateButton.setOnClickListener {
+            downloadUpdate()
+        }
+
+        selectDutyImageButton.setOnClickListener {
+            openDutyImagePicker()
+        }
+
+        viewDutyImageButton.setOnClickListener {
+            openSavedDutyImage()
+        }
+
+        showCurrentVersion()
+
         alarmToggleSwitch.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 AlarmScheduler.scheduleAlarmNotifications(requireContext())
@@ -79,9 +117,90 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
         alarmToggleSwitch.isChecked = AlarmScheduler.isAlarmScheduled(requireContext())
 
         updateScheduleFileStatus()
+        updateDutyImageStatus()
     }
 
     private fun scheduleRefFile(): File = File(requireContext().filesDir, "ders_programi_ref")
+
+    private fun dutyRefFile(): File = File(requireContext().filesDir, "pansiyon_nobet_ref")
+
+    private fun updateDutyImageStatus() {
+        val prefs = requireContext().getSharedPreferences(PREFS_NAME, android.content.Context.MODE_PRIVATE)
+        val fileName = prefs.getString(KEY_DUTY_FILE_NAME, null)
+        if (fileName != null && dutyRefFile().exists()) {
+            dutyImageStatusText.text = "Yüklü dosya: $fileName"
+            viewDutyImageButton.isEnabled = true
+        } else {
+            dutyImageStatusText.text = "Henüz dosya yüklenmedi"
+            viewDutyImageButton.isEnabled = false
+        }
+    }
+
+    private fun openDutyImagePicker() {
+        val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
+            type = "image/*"
+        }
+        startActivityForResult(Intent.createChooser(intent, "Pansiyon nöbet listesi resmi seç"), PICK_DUTY_IMAGE)
+    }
+
+    private fun saveDutyImage(fileUri: Uri) {
+        try {
+            val contentResolver = requireContext().contentResolver
+            val mimeType = contentResolver.getType(fileUri) ?: "image/*"
+
+            var displayName = "pansiyon_nobet"
+            contentResolver.query(fileUri, null, null, null, null)?.use { cursor ->
+                val nameIndex = cursor.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME)
+                if (nameIndex >= 0 && cursor.moveToFirst()) {
+                    displayName = cursor.getString(nameIndex) ?: displayName
+                }
+            }
+
+            contentResolver.openInputStream(fileUri)?.use { input ->
+                dutyRefFile().outputStream().use { output ->
+                    input.copyTo(output)
+                }
+            }
+
+            val prefs = requireContext().getSharedPreferences(PREFS_NAME, android.content.Context.MODE_PRIVATE)
+            prefs.edit()
+                .putString(KEY_DUTY_FILE_NAME, displayName)
+                .putString(KEY_DUTY_FILE_MIME, mimeType)
+                .apply()
+
+            updateDutyImageStatus()
+            Toast.makeText(requireContext(), "Pansiyon nöbet listesi kaydedildi: $displayName", Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            Toast.makeText(requireContext(), "Dosya kaydedilemedi: ${e.message}", Toast.LENGTH_LONG).show()
+        }
+    }
+
+    private fun openSavedDutyImage() {
+        val file = dutyRefFile()
+        if (!file.exists()) {
+            Toast.makeText(requireContext(), "Önce bir dosya yükleyin", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val prefs = requireContext().getSharedPreferences(PREFS_NAME, android.content.Context.MODE_PRIVATE)
+        val mimeType = prefs.getString(KEY_DUTY_FILE_MIME, "image/*") ?: "image/*"
+
+        try {
+            val uri = FileProvider.getUriForFile(
+                requireContext(),
+                "${requireContext().packageName}.fileprovider",
+                file
+            )
+            val intent = Intent(Intent.ACTION_VIEW).apply {
+                setDataAndType(uri, mimeType)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            startActivity(Intent.createChooser(intent, "Dosyayı aç"))
+        } catch (e: Exception) {
+            Toast.makeText(requireContext(), "Dosya açılamadı: ${e.message}", Toast.LENGTH_LONG).show()
+        }
+    }
 
     private fun updateScheduleFileStatus() {
         val prefs = requireContext().getSharedPreferences(PREFS_NAME, android.content.Context.MODE_PRIVATE)
@@ -162,6 +281,47 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
         }
     }
 
+    private fun showCurrentVersion() {
+        try {
+            val packageInfo = requireContext().packageManager.getPackageInfo(requireContext().packageName, 0)
+            currentVersionText.text = "Mevcut sürüm: ${packageInfo.versionName}"
+        } catch (e: Exception) {
+            currentVersionText.text = "Mevcut sürüm: bilinmiyor"
+        }
+    }
+
+    private fun checkForUpdate() {
+        updateStatusText.text = "Kontrol ediliyor..."
+        downloadUpdateButton.isEnabled = false
+        pendingRelease = null
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            val result = UpdateChecker.fetchLatestRelease()
+            result.onSuccess { release ->
+                pendingRelease = release
+                updateStatusText.text = "Son sürüm bulundu: ${release.releaseName}\nİndirmek için aşağıdaki düğmeye basın"
+                downloadUpdateButton.isEnabled = true
+            }.onFailure { error ->
+                updateStatusText.text = "Güncelleme kontrol edilemedi: ${error.message}"
+            }
+        }
+    }
+
+    private fun downloadUpdate() {
+        val release = pendingRelease ?: return
+        try {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(release.apkDownloadUrl))
+            startActivity(intent)
+            Toast.makeText(
+                requireContext(),
+                "İndirme başladı. Tamamlanınca bildirime dokunarak kurun",
+                Toast.LENGTH_LONG
+            ).show()
+        } catch (e: Exception) {
+            Toast.makeText(requireContext(), "İndirme başlatılamadı: ${e.message}", Toast.LENGTH_LONG).show()
+        }
+    }
+
     private fun initializeScheduleData() {
         viewLifecycleOwner.lifecycleScope.launch {
             try {
@@ -213,6 +373,11 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
             val fileUri: Uri? = data?.data
             fileUri?.let {
                 saveScheduleFile(it)
+            }
+        } else if (requestCode == PICK_DUTY_IMAGE && resultCode == Activity.RESULT_OK) {
+            val fileUri: Uri? = data?.data
+            fileUri?.let {
+                saveDutyImage(it)
             }
         }
     }

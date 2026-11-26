@@ -4,10 +4,12 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.example.derskazanimi.data.dao.DutyDateDao
 import com.example.derskazanimi.data.dao.LearningOutcomeDao
 import com.example.derskazanimi.data.dao.ScheduleEntryDao
 import com.example.derskazanimi.data.dao.TimeSlotDao
 import com.example.derskazanimi.data.dao.WeeklyPlanDao
+import com.example.derskazanimi.data.entity.DutyDate
 import com.example.derskazanimi.data.entity.LearningOutcome
 import com.example.derskazanimi.data.entity.ScheduleEntry
 import com.example.derskazanimi.data.entity.TimeSlot
@@ -18,9 +20,10 @@ import com.example.derskazanimi.data.entity.WeeklyPlan
         TimeSlot::class,
         ScheduleEntry::class,
         WeeklyPlan::class,
-        LearningOutcome::class
+        LearningOutcome::class,
+        DutyDate::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -29,6 +32,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun scheduleEntryDao(): ScheduleEntryDao
     abstract fun weeklyPlanDao(): WeeklyPlanDao
     abstract fun learningOutcomeDao(): LearningOutcomeDao
+    abstract fun dutyDateDao(): DutyDateDao
 
     companion object {
         @Volatile

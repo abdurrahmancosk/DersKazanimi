@@ -10,16 +10,21 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.derskazanimi.R
 import com.example.derskazanimi.data.AppDatabase
+import com.example.derskazanimi.data.entity.TimeSlot
 import com.example.derskazanimi.data.repository.DersRepository
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Locale
 
 class ScheduleFragment : Fragment(R.layout.fragment_schedule) {
 
     private lateinit var repository: DersRepository
     private lateinit var recyclerView: RecyclerView
     private lateinit var daySpinner: Spinner
+    private lateinit var dutyDatesRecyclerView: RecyclerView
     private lateinit var scheduleAdapter: ScheduleAdapter
 
     // Calendar.DAY_OF_WEEK convention: 1=Pazar .. 7=Cumartesi
@@ -42,9 +47,42 @@ class ScheduleFragment : Fragment(R.layout.fragment_schedule) {
 
         recyclerView = view.findViewById(R.id.scheduleRecyclerView)
         daySpinner = view.findViewById(R.id.daySpinner)
+        dutyDatesRecyclerView = view.findViewById(R.id.dutyDatesRecyclerView)
 
         setupSpinner()
         setupRecyclerView()
+        loadDutyDates()
+    }
+
+    private fun loadDutyDates() {
+        dutyDatesRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                val allDuties = repository.getAllDutyDates().first()
+                val todayDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Calendar.getInstance().time)
+                val upcoming = allDuties.filter { it.date >= todayDate }
+
+                val displayItems = upcoming.map { duty ->
+                    "${formatTurkishDate(duty.date)} - ${duty.note}"
+                }
+
+                dutyDatesRecyclerView.adapter = DutyDateAdapter(displayItems)
+                dutyDatesRecyclerView.visibility = if (displayItems.isEmpty()) View.GONE else View.VISIBLE
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    private fun formatTurkishDate(isoDate: String): String {
+        return try {
+            val parser = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+            val formatter = SimpleDateFormat("d MMMM yyyy", Locale("tr"))
+            val date = parser.parse(isoDate)
+            if (date != null) formatter.format(date) else isoDate
+        } catch (e: Exception) {
+            isoDate
+        }
     }
 
     private fun setupSpinner() {
@@ -84,26 +122,60 @@ class ScheduleFragment : Fragment(R.layout.fragment_schedule) {
         recyclerView.adapter = scheduleAdapter
     }
 
+    private fun minutesBetween(start: String, end: String): Int {
+        return try {
+            val (sh, sm) = start.split(":").map { it.toInt() }
+            val (eh, em) = end.split(":").map { it.toInt() }
+            (eh * 60 + em) - (sh * 60 + sm)
+        } catch (e: Exception) {
+            0
+        }
+    }
+
+    private fun buildDayItems(
+        dayLabel: String,
+        timeSlots: List<TimeSlot>,
+        entriesForDay: List<com.example.derskazanimi.data.entity.ScheduleEntry>
+    ): List<ScheduleItemDisplay> {
+        val items = mutableListOf<ScheduleItemDisplay>()
+        val sortedSlots = timeSlots.sortedBy { it.startTime }
+        var previousEndTime: String? = null
+
+        for (slot in sortedSlots) {
+            if (previousEndTime != null && previousEndTime != slot.startTime) {
+                val gap = minutesBetween(previousEndTime, slot.startTime)
+                if (gap >= 30) {
+                    items.add(
+                        ScheduleItemDisplay(
+                            dayName = dayLabel,
+                            className = "Öğle Arası",
+                            timeSlot = "$previousEndTime - ${slot.startTime}"
+                        )
+                    )
+                }
+            }
+
+            val entry = entriesForDay.find { it.timeSlotId == slot.id }
+            items.add(
+                ScheduleItemDisplay(
+                    dayName = dayLabel,
+                    className = entry?.className ?: "Boş",
+                    timeSlot = "${slot.startTime} - ${slot.endTime}"
+                )
+            )
+            previousEndTime = slot.endTime
+        }
+
+        return items
+    }
+
     private fun loadScheduleForDay(dayOfWeek: Int) {
         viewLifecycleOwner.lifecycleScope.launch {
             try {
                 repository.getScheduleByDay(dayOfWeek).collectLatest { scheduleEntries ->
                     repository.getAllTimeSlots().collectLatest { timeSlots ->
-                        val items = mutableListOf<ScheduleItemDisplay>()
-
-                        for (entry in scheduleEntries) {
-                            val timeSlot = timeSlots.find { it.id == entry.timeSlotId }
-                            if (timeSlot != null) {
-                                items.add(
-                                    ScheduleItemDisplay(
-                                        dayName = dayNames[dayOfWeek] ?: "Bilinmeyen Gün",
-                                        className = entry.className,
-                                        timeSlot = "${timeSlot.startTime} - ${timeSlot.endTime}"
-                                    )
-                                )
-                            }
-                        }
-
+                        val dayLabel = dayNames[dayOfWeek] ?: "Bilinmeyen Gün"
+                        val items = buildDayItems(dayLabel, timeSlots, scheduleEntries)
                         scheduleAdapter = ScheduleAdapter(items)
                         recyclerView.adapter = scheduleAdapter
                     }
@@ -120,20 +192,11 @@ class ScheduleFragment : Fragment(R.layout.fragment_schedule) {
                 repository.getAllScheduleEntries().collectLatest { scheduleEntries ->
                     repository.getAllTimeSlots().collectLatest { timeSlots ->
                         val items = mutableListOf<ScheduleItemDisplay>()
-
-                        for (entry in scheduleEntries) {
-                            val timeSlot = timeSlots.find { it.id == entry.timeSlotId }
-                            if (timeSlot != null) {
-                                items.add(
-                                    ScheduleItemDisplay(
-                                        dayName = dayNames[entry.dayOfWeek] ?: "Bilinmeyen Gün",
-                                        className = entry.className,
-                                        timeSlot = "${timeSlot.startTime} - ${timeSlot.endTime}"
-                                    )
-                                )
-                            }
+                        for (day in spinnerDays) {
+                            val dayLabel = dayNames[day] ?: "Bilinmeyen Gün"
+                            val entriesForDay = scheduleEntries.filter { it.dayOfWeek == day }
+                            items.addAll(buildDayItems(dayLabel, timeSlots, entriesForDay))
                         }
-
                         scheduleAdapter = ScheduleAdapter(items)
                         recyclerView.adapter = scheduleAdapter
                     }

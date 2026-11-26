@@ -10,6 +10,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.example.derskazanimi.ui.dashboard.DashboardFragment
+import com.example.derskazanimi.ui.outcomes.OutcomesFragment
 import com.example.derskazanimi.ui.schedule.ScheduleFragment
 import com.example.derskazanimi.ui.settings.SettingsFragment
 
@@ -56,6 +57,10 @@ class MainActivity : AppCompatActivity() {
                 }
                 R.id.nav_schedule -> {
                     loadFragment(ScheduleFragment())
+                    true
+                }
+                R.id.nav_outcomes -> {
+                    loadFragment(OutcomesFragment())
                     true
                 }
                 R.id.nav_settings -> {
