@@ -1,9 +1,7 @@
 package com.example.derskazanimi.ui.schedule
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.Spinner
 import android.widget.ArrayAdapter
 import androidx.fragment.app.Fragment
@@ -24,6 +22,7 @@ class ScheduleFragment : Fragment(R.layout.fragment_schedule) {
     private lateinit var daySpinner: Spinner
     private lateinit var scheduleAdapter: ScheduleAdapter
 
+    // Calendar.DAY_OF_WEEK convention: 1=Pazar .. 7=Cumartesi
     private val dayNames = mapOf(
         2 to "Pazartesi",
         3 to "Salı",
@@ -32,6 +31,8 @@ class ScheduleFragment : Fragment(R.layout.fragment_schedule) {
         6 to "Cuma",
         7 to "Cumartesi"
     )
+
+    private val spinnerDays = listOf(2, 3, 4, 5, 6, 7) // "Tüm Hafta" position 0'da ayrı tutulur
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -47,9 +48,7 @@ class ScheduleFragment : Fragment(R.layout.fragment_schedule) {
     }
 
     private fun setupSpinner() {
-        val spinnerItems = listOf(
-            "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi"
-        )
+        val spinnerItems = listOf("Tüm Hafta") + spinnerDays.map { dayNames[it] ?: "Bilinmeyen Gün" }
 
         val adapter = ArrayAdapter(
             requireContext(),
@@ -59,16 +58,20 @@ class ScheduleFragment : Fragment(R.layout.fragment_schedule) {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         daySpinner.adapter = adapter
 
-        // Set current day as default
-        val currentDay = Calendar.getInstance().get(Calendar.DAY_OF_WEEK) - 1
-        if (currentDay in 2..7) {
-            daySpinner.setSelection(currentDay - 2)
+        // Bugünü varsayılan seçili gün yap (Pazar/Cumartesi'de "Tüm Hafta" kalır)
+        val currentDay = Calendar.getInstance().get(Calendar.DAY_OF_WEEK)
+        val defaultPosition = spinnerDays.indexOf(currentDay)
+        if (defaultPosition >= 0) {
+            daySpinner.setSelection(defaultPosition + 1)
         }
 
         daySpinner.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: android.widget.AdapterView<*>?, view: View?, position: Int, id: Long) {
-                val selectedDay = position + 2 // Convert to 2-7 range
-                loadScheduleForDay(selectedDay)
+                if (position == 0) {
+                    loadWholeWeekSchedule()
+                } else {
+                    loadScheduleForDay(spinnerDays[position - 1])
+                }
             }
 
             override fun onNothingSelected(parent: android.widget.AdapterView<*>?) {}
@@ -94,6 +97,36 @@ class ScheduleFragment : Fragment(R.layout.fragment_schedule) {
                                 items.add(
                                     ScheduleItemDisplay(
                                         dayName = dayNames[dayOfWeek] ?: "Bilinmeyen Gün",
+                                        className = entry.className,
+                                        timeSlot = "${timeSlot.startTime} - ${timeSlot.endTime}"
+                                    )
+                                )
+                            }
+                        }
+
+                        scheduleAdapter = ScheduleAdapter(items)
+                        recyclerView.adapter = scheduleAdapter
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    private fun loadWholeWeekSchedule() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                repository.getAllScheduleEntries().collectLatest { scheduleEntries ->
+                    repository.getAllTimeSlots().collectLatest { timeSlots ->
+                        val items = mutableListOf<ScheduleItemDisplay>()
+
+                        for (entry in scheduleEntries) {
+                            val timeSlot = timeSlots.find { it.id == entry.timeSlotId }
+                            if (timeSlot != null) {
+                                items.add(
+                                    ScheduleItemDisplay(
+                                        dayName = dayNames[entry.dayOfWeek] ?: "Bilinmeyen Gün",
                                         className = entry.className,
                                         timeSlot = "${timeSlot.startTime} - ${timeSlot.endTime}"
                                     )

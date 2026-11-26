@@ -26,6 +26,9 @@ interface WeeklyPlanDao {
     @Query("SELECT * FROM weekly_plans WHERE weekNumber = :weekNumber")
     fun getWeeklyPlanByWeekNumber(weekNumber: Int): Flow<WeeklyPlan?>
 
+    @Query("SELECT * FROM weekly_plans WHERE :date BETWEEN startDate AND endDate LIMIT 1")
+    fun getWeeklyPlanForDate(date: String): Flow<WeeklyPlan?>
+
     @Query("SELECT * FROM weekly_plans ORDER BY weekNumber ASC")
     fun getAllWeeklyPlans(): Flow<List<WeeklyPlan>>
 

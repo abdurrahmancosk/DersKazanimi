@@ -26,7 +26,7 @@ class LessonNotificationWorker(
             // Get current time info
             val calendar = Calendar.getInstance()
             val currentTime = SimpleDateFormat("HH:mm", Locale.getDefault()).format(calendar.time)
-            val dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK) - 1 // Convert to 1-6 (Mon-Sat)
+            val dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK) // Calendar.DAY_OF_WEEK: Sun=1..Sat=7
 
             // Check if there's a lesson within the notification window (150-40 minutes before)
             val notificationSent = checkAndNotifyUpcomingLessons(

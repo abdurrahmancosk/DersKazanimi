@@ -69,6 +69,9 @@ class DersRepository(private val database: AppDatabase) {
     fun getWeeklyPlanByWeekNumber(weekNumber: Int): Flow<WeeklyPlan?> =
         database.weeklyPlanDao().getWeeklyPlanByWeekNumber(weekNumber)
 
+    fun getWeeklyPlanForDate(date: String): Flow<WeeklyPlan?> =
+        database.weeklyPlanDao().getWeeklyPlanForDate(date)
+
     fun getAllWeeklyPlans(): Flow<List<WeeklyPlan>> =
         database.weeklyPlanDao().getAllWeeklyPlans()
 
